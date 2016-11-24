@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">WFDMeshServer</string>
+    <string name="action_settings">Settings</string>
+    <string name="send_msg">Send Msg</string>
+</resources>
