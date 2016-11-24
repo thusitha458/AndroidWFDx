@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">WifiDirect Test App</string>
+    <string name="send_msg">Send Msg</string>
+    <string name="connect_btn">Connect</string>
+</resources>
