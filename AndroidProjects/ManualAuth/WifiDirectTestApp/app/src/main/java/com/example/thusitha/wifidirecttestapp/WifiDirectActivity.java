@@ -52,10 +52,19 @@ public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdat
 
     private String currentClientAddress = null;
 
+    // Logger
+    private Logger logger;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wifi_direct);
+
+        //
+        logger = new Logger("logfile.txt");
+        logger.appendLog("test1");
+        logger.appendLog("test2");
+        //
 
         textView = (TextView) findViewById(R.id.status_view);
         textView.setMovementMethod(new ScrollingMovementMethod());
