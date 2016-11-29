@@ -30,6 +30,9 @@ public class MessageHandler implements DestroyableObject {
                 tcpMessageListener.start();
                 break;
             case UDP:
+                UdpMessageListener udpMessageListener = new UdpMessageListener(screenUpdater, clientListManager, port);
+                destroyableListener = udpMessageListener;
+                udpMessageListener.start();
                 break;
             default:
                 break;
@@ -45,6 +48,8 @@ public class MessageHandler implements DestroyableObject {
                 tcpMessageSender.execute();
                 break;
             case UDP:
+                UdpMessageSender udpMessageSender = new UdpMessageSender(message, screenUpdater, destinationAddress, port);
+                udpMessageSender.execute();
                 break;
             default:
                 break;
