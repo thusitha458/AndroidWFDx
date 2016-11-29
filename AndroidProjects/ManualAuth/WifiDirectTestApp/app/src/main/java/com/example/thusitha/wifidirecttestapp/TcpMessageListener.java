@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class TcpMessageListener extends Thread {
+public class TcpMessageListener extends Thread implements DestroyableObject {
 
     private ScreenUpdater screenUpdater;
     private ClientListManager clientListManager;
@@ -31,6 +31,11 @@ public class TcpMessageListener extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onDestroyObject() {
+        this.interrupt();
     }
 
     private class ProcessMessageThread extends Thread {
