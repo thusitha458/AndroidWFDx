@@ -59,7 +59,7 @@ public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdat
 
         //
         fileLogger = (new FileLoggerCreator()).getFileLogger(FileLoggerCreator.Experiments.EXPERIMENT_1);
-        fileLogger.createLogFile("logFile.txt");
+        fileLogger.createLogFile();
         fileLogger.appendLog("test1");
         fileLogger.appendLog("test2");
         //

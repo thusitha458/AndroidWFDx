@@ -24,6 +24,11 @@ public class LoggerExp1 implements FileLogger {
     }
 
     @Override
+    public void createLogFile () {
+        createLogFile(fileName);
+    }
+
+    @Override
     public void createLogFile (String fileName) {
 
         this.fileName = fileName;
