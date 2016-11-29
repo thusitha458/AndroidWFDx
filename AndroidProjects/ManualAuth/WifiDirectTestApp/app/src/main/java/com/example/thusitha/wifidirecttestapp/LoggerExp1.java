@@ -1,6 +1,5 @@
 package com.example.thusitha.wifidirecttestapp;
 
-import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
@@ -11,38 +10,35 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 
-/**
- * Created by Thusitha on WifiDirectTestApp.
- */
-public class Logger {
 
-    private String fileName;
+public class LoggerExp1 implements FileLogger {
 
+    private String fileName = "logExp1.txt";
     private File logFile;
+    private static LoggerExp1 loggerExp1 = new LoggerExp1();
 
-    public Logger (String fileName) {
+    private LoggerExp1() {}
 
-        this.fileName = fileName;
-        createLogFile();
+    public synchronized static LoggerExp1 getInstance () {
+        return loggerExp1;
     }
 
+    @Override
+    public void createLogFile (String fileName) {
 
-    private void createLogFile () {
-
+        this.fileName = fileName;
         logFile = new File(Environment.getExternalStorageDirectory() + File.separator + fileName);
-
-        Log.d("testlog", Environment.getExternalStorageDirectory().toString());
+        Log.d(WifiDirectActivity.LOG_TAG, Environment.getExternalStorageDirectory().toString());
 
         if (!logFile.exists()) {
 
-            Log.d("testlog", "file doesn't exist");
+            Log.d(WifiDirectActivity.LOG_TAG, "file doesn't exist");
 
             try {
                 boolean success = logFile.createNewFile();
-                Log.d("testlog", "lll");
+                Log.d(WifiDirectActivity.LOG_TAG, "Log file is created");
             } catch (IOException ioe) {
-                Log.d("testlog", ioe.getMessage());
-//                ioe.getMessage();
+                Log.d(WifiDirectActivity.LOG_TAG, ioe.getMessage());
                 ioe.printStackTrace();
             }
 
@@ -64,7 +60,7 @@ public class Logger {
 
     }
 
-
+    @Override
     public void appendLog (String text) {
 
         if (logFile == null) return;
@@ -88,7 +84,4 @@ public class Logger {
         return fileName;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
 }

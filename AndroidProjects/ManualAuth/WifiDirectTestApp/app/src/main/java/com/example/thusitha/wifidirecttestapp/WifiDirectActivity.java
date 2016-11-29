@@ -2,7 +2,6 @@ package com.example.thusitha.wifidirecttestapp;
 
 import android.content.Context;
 import android.content.IntentFilter;
-import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -17,8 +16,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import java.io.IOException;
-import java.net.InetAddress;
 import java.util.ArrayList;
 
 public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdater, ClientListManager {
@@ -47,13 +44,13 @@ public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdat
 
     private TextView textView;
 
-    MessageListener messageListener;
+    TcpMessageListener messageListener;
     private int count = 0;
 
     private String currentClientAddress = null;
 
-    // Logger
-    private Logger logger;
+    // LoggerExp1
+    private FileLogger fileLogger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,9 +58,10 @@ public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdat
         setContentView(R.layout.activity_wifi_direct);
 
         //
-        logger = new Logger("logfile.txt");
-        logger.appendLog("test1");
-        logger.appendLog("test2");
+        fileLogger = (new FileLoggerCreator()).getFileLogger(FileLoggerCreator.Experiments.EXPERIMENT_1);
+        fileLogger.createLogFile("logFile.txt");
+        fileLogger.appendLog("test1");
+        fileLogger.appendLog("test2");
         //
 
         textView = (TextView) findViewById(R.id.status_view);
@@ -193,14 +191,14 @@ public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdat
                     setConnected(true);
                     textView.append("Connected, GO" + '\n');
                     count = 0;
-                    messageListener = new MessageListener(WifiDirectActivity.this, WifiDirectActivity.this, SERVER_PORT);
+                    messageListener = new TcpMessageListener(WifiDirectActivity.this, WifiDirectActivity.this, SERVER_PORT);
                     messageListener.start();
                 } else if (info.groupFormed) {
                     setGroupOwner(false);
                     setConnected(true);
                     textView.append("Connected, Not a GO" + '\n');
                     count = 0;
-                    messageListener = new MessageListener(WifiDirectActivity.this, WifiDirectActivity.this, SERVER_PORT);
+                    messageListener = new TcpMessageListener(WifiDirectActivity.this, WifiDirectActivity.this, SERVER_PORT);
                     messageListener.start();
                 }
             }
@@ -245,7 +243,7 @@ public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdat
                 receiverAddress = groupOwnerAddress;
                 message = "Message from client: ";
             }
-            MessageSender sender = new MessageSender(message + (++count),
+            TcpMessageSender sender = new TcpMessageSender(message + (++count),
                     WifiDirectActivity.this, receiverAddress, SERVER_PORT);
             sender.execute();
         }
