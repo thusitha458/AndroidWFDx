@@ -7,8 +7,8 @@ import android.os.Message;
 
 public class Experiment1 extends Thread implements Experiment {
 
-    public volatile Handler mHandler;
-    private Handler sendMessageHandler = new Handler();
+    public volatile Handler messageHandler;
+    private Handler periodicMessageHandler = new Handler();
 
     private long currentId = 0;
     private long messageLimit;
@@ -17,7 +17,7 @@ public class Experiment1 extends Thread implements Experiment {
     private long durationMS = 20000;
     private String destinationAddress;
 
-    private MessageHandler messageHandler = null;
+    private MessageManager messageManager = null;
     private FileLogger fileLogger;
     private boolean isRunning = false;
 
@@ -29,9 +29,8 @@ public class Experiment1 extends Thread implements Experiment {
         return instance;
     }
 
-    @Override
-    public void setMessageHandler (MessageHandler messageHandler) {
-        this.messageHandler = messageHandler;
+    public void setMessageManager(MessageManager messageManager) {
+        this.messageManager = messageManager;
     }
 
     @Override
@@ -39,8 +38,8 @@ public class Experiment1 extends Thread implements Experiment {
 
         setMessageLimit();
 
-        if (messageHandler == null) return;
-        fileLogger = (new FileLoggerCreator()).getFileLogger(ExperimentFactory.Experiments.EXPERIMENT_1);
+        if (messageManager == null) return;
+        fileLogger = (new FileLoggerFactory()).getFileLogger(FileLoggerFactory.LoggerType.LOGGER_1);
         fileLogger.createLogFile();
 
         isRunning = true;
@@ -52,7 +51,7 @@ public class Experiment1 extends Thread implements Experiment {
     public void run () {
         // set handler
         Looper.prepare();
-        mHandler = new Handler() { //TODO: fix this
+        messageHandler = new Handler() { //TODO: fix this
             @Override
             public void handleMessage(Message msg) {
                 // log
@@ -67,13 +66,13 @@ public class Experiment1 extends Thread implements Experiment {
             public void run() {
                 long nextId;
                 if ((nextId = getNextId()) >= 0) {
-                    messageHandler.sendMessage(
+                    messageManager.sendMessage(
                             destinationAddress,
                             constructMessage(nextId)
                     );
-                    sendMessageHandler.postDelayed(this, periodMS);
+                    periodicMessageHandler.postDelayed(this, periodMS);
                 } else {
-                    sendMessageHandler.removeCallbacks(this);
+                    periodicMessageHandler.removeCallbacks(this);
                 }
             }
 
@@ -125,7 +124,7 @@ public class Experiment1 extends Thread implements Experiment {
 
     @Override
     public Handler getHandler() {
-        return mHandler;
+        return messageHandler;
     }
 
 }

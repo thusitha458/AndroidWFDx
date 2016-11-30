@@ -1,7 +1,7 @@
 package com.example.thusitha.wifidirecttestapp;
 
 
-public class MessageHandler implements DestroyableObject {
+public class MessageManager implements DestroyableObject {
 
     public enum MessagingProtocol {
         TCP, UDP
@@ -13,7 +13,7 @@ public class MessageHandler implements DestroyableObject {
 
     private DestroyableObject destroyableListener = null;
 
-    public MessageHandler (MessagingProtocol protocol, ScreenUpdater screenUpdater, int port) {
+    public MessageManager(MessagingProtocol protocol, ScreenUpdater screenUpdater, int port) {
 
         this.protocol = protocol;
         this.screenUpdater = screenUpdater;

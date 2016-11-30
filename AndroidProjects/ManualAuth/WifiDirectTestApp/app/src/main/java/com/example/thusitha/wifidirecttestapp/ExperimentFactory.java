@@ -3,21 +3,21 @@ package com.example.thusitha.wifidirecttestapp;
 
 public class ExperimentFactory {
 
-    public enum Experiments {
+    public enum ExperimentType {
         EXPERIMENT_1
     }
 
-    private MessageHandler messageHandler;
+    private MessageManager messageManager;
 
-    public ExperimentFactory(MessageHandler messageHandler) {
-        this.messageHandler = messageHandler;
+    public ExperimentFactory(MessageManager messageManager) {
+        this.messageManager = messageManager;
     }
 
-    public Experiment getExperiment (Experiments experiment) {
-        switch (experiment) {
+    public Experiment getExperiment (ExperimentType experimentType) {
+        switch (experimentType) {
             case EXPERIMENT_1:
                 Experiment exp = Experiment1.getInstance();
-                exp.setMessageHandler(messageHandler);
+                exp.setMessageManager(messageManager);
                 return exp;
             default:
                 return null;

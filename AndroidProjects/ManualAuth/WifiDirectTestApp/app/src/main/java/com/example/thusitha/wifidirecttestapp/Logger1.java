@@ -11,16 +11,16 @@ import java.text.DateFormat;
 import java.util.Date;
 
 
-public class LoggerExp1 implements FileLogger {
+public class Logger1 implements FileLogger {
 
-    private String fileName = "logExp1.txt";
+    private String fileName = "log1.txt";
     private File logFile;
-    private static LoggerExp1 loggerExp1 = new LoggerExp1();
+    private static Logger1 logger1 = new Logger1();
 
-    private LoggerExp1() {}
+    private Logger1() {}
 
-    public synchronized static LoggerExp1 getInstance () {
-        return loggerExp1;
+    public synchronized static Logger1 getInstance () {
+        return logger1;
     }
 
     @Override

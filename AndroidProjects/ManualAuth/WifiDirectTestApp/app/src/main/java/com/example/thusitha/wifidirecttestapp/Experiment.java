@@ -1,9 +1,6 @@
 package com.example.thusitha.wifidirecttestapp;
 
-
 import android.os.Handler;
-
-import java.util.ArrayList;
 
 public interface Experiment {
 
@@ -11,6 +8,6 @@ public interface Experiment {
     void setParameters (String... parameters);
     boolean isRunning();
     Handler getHandler();
-    void setMessageHandler(MessageHandler messageHandler);
+    void setMessageManager(MessageManager messageManager);
 
 }

@@ -9,7 +9,6 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -50,7 +49,7 @@ public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdat
 
     private String currentClientAddress = null;
 
-    // LoggerExp1
+    // Logger1
     private FileLogger fileLogger;
 
     @Override
@@ -59,7 +58,7 @@ public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdat
         setContentView(R.layout.activity_wifi_direct);
 
         //
-        fileLogger = (new FileLoggerCreator()).getFileLogger(ExperimentFactory.Experiments.EXPERIMENT_1);
+        fileLogger = (new FileLoggerFactory()).getFileLogger(FileLoggerFactory.LoggerType.LOGGER_1);
         fileLogger.createLogFile();
         fileLogger.appendLog("test1");
         fileLogger.appendLog("test2");
