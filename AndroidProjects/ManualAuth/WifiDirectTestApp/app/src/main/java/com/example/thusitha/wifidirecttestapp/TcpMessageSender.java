@@ -39,7 +39,7 @@ public class TcpMessageSender extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPostExecute(Void aVoid) {
-        activity.displayMessage(false, message);
+        activity.displayMessage(false, new MessageContents(System.currentTimeMillis(), message));
         super.onPostExecute(aVoid);
     }
 

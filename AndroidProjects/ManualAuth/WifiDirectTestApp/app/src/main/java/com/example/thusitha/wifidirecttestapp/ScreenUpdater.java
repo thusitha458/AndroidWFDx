@@ -2,5 +2,5 @@ package com.example.thusitha.wifidirecttestapp;
 
 
 public interface ScreenUpdater {
-    void displayMessage(boolean isReceived, String message);
+    void displayMessage(boolean isReceived, MessageContents messageContents);
 }

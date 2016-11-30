@@ -46,7 +46,7 @@ public class UdpMessageSender extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPostExecute(Void aVoid) {
-        screenUpdater.displayMessage(false, message);
+        screenUpdater.displayMessage(false, new MessageContents(System.currentTimeMillis(), message));
         super.onPostExecute(aVoid);
     }
 

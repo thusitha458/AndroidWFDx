@@ -62,7 +62,7 @@ public class UdpMessageListener extends Thread implements DestroyableObject {
         @Override
         public void run () {
             clientListManager.updateCurrentClient(senderAddress);
-            screenUpdater.displayMessage(true, messageData);
+            screenUpdater.displayMessage(true, new MessageContents(System.currentTimeMillis(), messageData));
         }
 
 

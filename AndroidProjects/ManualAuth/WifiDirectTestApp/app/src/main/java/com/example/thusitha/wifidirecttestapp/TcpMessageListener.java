@@ -65,7 +65,8 @@ public class TcpMessageListener extends Thread implements DestroyableObject {
                 message = e.toString();
                 e.printStackTrace();
             }
-            screenUpdater.displayMessage(true, message);
+
+            screenUpdater.displayMessage(true, new MessageContents(System.currentTimeMillis(), message));
 
         }
     }

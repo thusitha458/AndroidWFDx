@@ -21,7 +21,7 @@ public class MessageHandler implements DestroyableObject {
 
     }
 
-    public void startListener (ClientListManager clientListManager) {
+    public synchronized void startListener (ClientListManager clientListManager) {
 
         switch (protocol) {
             case TCP:
@@ -40,7 +40,7 @@ public class MessageHandler implements DestroyableObject {
 
     }
 
-    public void sendMessage (String destinationAddress, String message) {
+    public synchronized void sendMessage (String destinationAddress, String message) {
 
         switch (protocol) {
             case TCP:

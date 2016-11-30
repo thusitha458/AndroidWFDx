@@ -3,13 +3,9 @@ package com.example.thusitha.wifidirecttestapp;
 
 public class FileLoggerCreator {
 
-    public enum Experiments {
-        EXPERIMENT_1
-    }
-
     public FileLoggerCreator () {}
 
-    public FileLogger getFileLogger (Experiments experiment) {
+    public FileLogger getFileLogger (ExperimentFactory.Experiments experiment) {
 
         switch (experiment) {
             case EXPERIMENT_1:

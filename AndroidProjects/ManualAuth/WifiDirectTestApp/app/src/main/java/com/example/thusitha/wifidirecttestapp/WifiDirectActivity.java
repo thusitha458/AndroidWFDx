@@ -9,6 +9,7 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -58,7 +59,7 @@ public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdat
         setContentView(R.layout.activity_wifi_direct);
 
         //
-        fileLogger = (new FileLoggerCreator()).getFileLogger(FileLoggerCreator.Experiments.EXPERIMENT_1);
+        fileLogger = (new FileLoggerCreator()).getFileLogger(ExperimentFactory.Experiments.EXPERIMENT_1);
         fileLogger.createLogFile();
         fileLogger.appendLog("test1");
         fileLogger.appendLog("test2");
@@ -258,13 +259,20 @@ public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdat
     }
 
     @Override
-    public synchronized void displayMessage(boolean isReceived, String message) {
+    public synchronized void displayMessage(boolean isReceived, MessageContents message) {
+//        Experiment experiment = Experiment1.getInstance();
+//        if (experiment.isRunning() && isReceived) {
+//            Message msg = Message.obtain();
+//            msg.obj = message;
+//            experiment.getHandler().sendMessage(msg);
+//        }
+
         if (isReceived) {
-            message = "Got: " + message;
+            message.data = "Got: " + message.data;
         } else {
-            message = "Sent: " + message;
+            message.data = "Sent: " + message.data;
         }
-        final String finalMessage = message;
+        final String finalMessage = message.data;
         WifiDirectActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
