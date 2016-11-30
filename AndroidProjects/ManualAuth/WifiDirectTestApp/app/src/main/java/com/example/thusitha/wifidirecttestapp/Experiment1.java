@@ -5,8 +5,6 @@ import android.os.Looper;
 import android.os.Handler;
 import android.os.Message;
 
-import java.util.ArrayList;
-
 public class Experiment1 extends Thread implements Experiment {
 
     public volatile Handler mHandler;
@@ -29,6 +27,11 @@ public class Experiment1 extends Thread implements Experiment {
 
     public static Experiment1 getInstance () {
         return instance;
+    }
+
+    @Override
+    public void setMessageHandler (MessageHandler messageHandler) {
+        this.messageHandler = messageHandler;
     }
 
     @Override

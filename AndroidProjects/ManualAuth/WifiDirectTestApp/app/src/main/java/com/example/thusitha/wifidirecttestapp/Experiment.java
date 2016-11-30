@@ -11,5 +11,6 @@ public interface Experiment {
     void setParameters (String... parameters);
     boolean isRunning();
     Handler getHandler();
+    void setMessageHandler(MessageHandler messageHandler);
 
 }

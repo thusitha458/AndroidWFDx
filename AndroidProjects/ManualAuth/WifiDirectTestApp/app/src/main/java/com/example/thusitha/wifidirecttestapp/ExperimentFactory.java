@@ -7,8 +7,21 @@ public class ExperimentFactory {
         EXPERIMENT_1
     }
 
-    public ExperimentFactory() {}
+    private MessageHandler messageHandler;
 
+    public ExperimentFactory(MessageHandler messageHandler) {
+        this.messageHandler = messageHandler;
+    }
 
+    public Experiment getExperiment (Experiments experiment) {
+        switch (experiment) {
+            case EXPERIMENT_1:
+                Experiment exp = Experiment1.getInstance();
+                exp.setMessageHandler(messageHandler);
+                return exp;
+            default:
+                return null;
+        }
+    }
 
 }
