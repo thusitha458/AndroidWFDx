@@ -9,16 +9,20 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdater, ClientListManager {
+public class WifiDirectActivity extends AppCompatActivity {
 
     public static final int SERVER_PORT = 8877;
     public static String LOG_TAG = "Logs";
@@ -49,20 +53,19 @@ public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdat
 
     private String currentClientAddress = null;
 
-    // Logger1
-    private FileLogger fileLogger;
+    private Handler messageHandler;
+    private MessageManager messageManager;
+    Experiment experiment = null;
+    private boolean isClientAddressSet = false;
+    private boolean clientSentAMessage = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wifi_direct);
 
-        //
-        fileLogger = (new FileLoggerFactory()).getFileLogger(FileLoggerFactory.LoggerType.LOGGER_1);
-        fileLogger.createLogFile();
-        fileLogger.appendLog("test1");
-        fileLogger.appendLog("test2");
-        //
+        messageHandler = new ActivityMessageHandler(this);
+        messageManager = new MessageManager(TransportProtocol.UDP, SERVER_PORT);
 
         textView = (TextView) findViewById(R.id.status_view);
         textView.setMovementMethod(new ScrollingMovementMethod());
@@ -104,9 +107,8 @@ public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdat
         if (wifiLock != null) {
             wifiLock.release();
         }
-        if (messageListener != null) {
-            messageListener.interrupt();
-        }
+        messageManager.onDestroyObject();
+        messageManager.unregisterHandler(messageHandler);
         super.onDestroy();
     }
 
@@ -191,15 +193,19 @@ public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdat
                     setConnected(true);
                     textView.append("Connected, GO" + '\n');
                     count = 0;
-                    messageListener = new TcpMessageListener(WifiDirectActivity.this, WifiDirectActivity.this, SERVER_PORT);
-                    messageListener.start();
+
+                    messageManager.startListener();
+                    messageManager.registerHandler(messageHandler);
+                    experiment = (new ExperimentFactory(messageManager)).getExperiment(ExperimentType.EXPERIMENT_1);
                 } else if (info.groupFormed) {
                     setGroupOwner(false);
                     setConnected(true);
                     textView.append("Connected, Not a GO" + '\n');
                     count = 0;
-                    messageListener = new TcpMessageListener(WifiDirectActivity.this, WifiDirectActivity.this, SERVER_PORT);
-                    messageListener.start();
+
+                    messageManager.startListener();
+                    messageManager.registerHandler(messageHandler);
+                    experiment = (new ExperimentFactory(messageManager)).getExperiment(ExperimentType.EXPERIMENT_1);
                 }
             }
         };
@@ -240,12 +246,14 @@ public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdat
                 }
                 message = "Message from server: ";
             } else {
+                clientSentAMessage = true;
                 receiverAddress = groupOwnerAddress;
                 message = "Message from client: ";
             }
-            TcpMessageSender sender = new TcpMessageSender(message + (++count),
-                    WifiDirectActivity.this, receiverAddress, SERVER_PORT);
-            sender.execute();
+            message = message + (++count);
+
+            messageManager.sendMessage(receiverAddress, message);
+            displayMessage(false, message);
         }
     }
 
@@ -257,31 +265,91 @@ public class WifiDirectActivity extends AppCompatActivity implements ScreenUpdat
         isConnecting = connecting;
     }
 
-    @Override
-    public synchronized void displayMessage(boolean isReceived, MessageContents message) {
-//        Experiment experiment = Experiment1.getInstance();
-//        if (experiment.isRunning() && isReceived) {
-//            Message msg = Message.obtain();
-//            msg.obj = message;
-//            experiment.getHandler().sendMessage(msg);
-//        }
+
+    protected void displayMessage(boolean isReceived, String message) {
 
         if (isReceived) {
-            message.data = "Got: " + message.data;
+            message = "Got: " + message;
         } else {
-            message.data = "Sent: " + message.data;
+            message = "Sent: " + message;
         }
-        final String finalMessage = message.data;
+        final String finalMessage = message;
         WifiDirectActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 textView.append(finalMessage + '\n');
             }
         });
+
+    }
+
+
+    protected void updateCurrentClient(String ip) {
+        isClientAddressSet = true;
+        currentClientAddress = ip;
+    }
+
+
+    public void onClickStartExperiment(View view) {
+
+        if (experiment == null || (isGroupOwner && !isClientAddressSet) || (!isGroupOwner && !clientSentAMessage)) {
+            Toast.makeText(this, "Not ready for an experiment yet", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (experiment.isRunning()) {
+            Toast.makeText(this, "Experiment already started", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        EditText periodText = (EditText) findViewById(R.id.period_text);
+        EditText durationText = (EditText) findViewById(R.id.duration_text);
+
+        String periodStr = periodText.getText().toString();
+        String durationStr = durationText.getText().toString();
+
+        if (!periodStr.equals("") && !durationStr.equals("")) {
+
+            experiment.setParameters(String.valueOf(isGroupOwner),
+                    periodStr,
+                    durationStr,
+                    isGroupOwner ? currentClientAddress : groupOwnerAddress
+            );
+
+            experiment.startExperiment();
+            textView.append("Experiment started...\n");
+
+        } else {
+            Toast.makeText(this, "Enter period/duration", Toast.LENGTH_SHORT).show();
+        }
+    }
+}
+
+class ActivityMessageHandler extends Handler {
+
+    private WifiDirectActivity activity;
+
+    ActivityMessageHandler (WifiDirectActivity activity) {
+        this.activity = activity;
     }
 
     @Override
-    public synchronized void updateCurrentClient(String ip) {
-        currentClientAddress = ip;
+    public void handleMessage (Message message) {
+
+        switch (message.what) {
+
+            case InterThreadMessageTypes.CLIENT_IP_ADDRESS:
+                activity.updateCurrentClient(message.obj.toString());
+                break;
+            case InterThreadMessageTypes.WIFI_DIRECT_MESSAGE:
+                activity.displayMessage(true, message.obj.toString());
+                break;
+            default:
+                break;
+
+        }
+
     }
+
+
 }
