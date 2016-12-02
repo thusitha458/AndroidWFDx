@@ -1,66 +1,75 @@
 package com.example.thusitha.wifidirecttestapp;
 
 
-public class MessageManager implements DestroyableObject {
+import android.os.Handler;
 
-    public enum MessagingProtocol {
-        TCP, UDP
-    }
+public class MessageManager implements DestroyableObject, InterThreadMessenger {
 
-    private MessagingProtocol protocol;
-    private ScreenUpdater screenUpdater;
+    private TransportProtocol protocol;
     private int port;
+    private MessageListener messageListener = null;
 
-    private DestroyableObject destroyableListener = null;
-
-    public MessageManager(MessagingProtocol protocol, ScreenUpdater screenUpdater, int port) {
-
+    public MessageManager(TransportProtocol protocol, int port) {
         this.protocol = protocol;
-        this.screenUpdater = screenUpdater;
         this.port = port;
-
     }
 
-    public synchronized void startListener (ClientListManager clientListManager) {
+    public synchronized void startListener () {
 
         switch (protocol) {
             case TCP:
-                TcpMessageListener tcpMessageListener = new TcpMessageListener(screenUpdater, clientListManager, port);
-                destroyableListener = tcpMessageListener;
-                tcpMessageListener.start();
+                messageListener = new TcpMessageListener(port);
                 break;
             case UDP:
-                UdpMessageListener udpMessageListener = new UdpMessageListener(screenUpdater, clientListManager, port);
-                destroyableListener = udpMessageListener;
-                udpMessageListener.start();
+                messageListener = new UdpMessageListener(port);
                 break;
             default:
+                messageListener = new TcpMessageListener(port);
                 break;
         }
+
+        messageListener.start();
 
     }
 
     public synchronized void sendMessage (String destinationAddress, String message) {
 
+        MessageSender messageSender;
+
         switch (protocol) {
             case TCP:
-                TcpMessageSender tcpMessageSender = new TcpMessageSender(message, screenUpdater, destinationAddress, port);
-                tcpMessageSender.execute();
+                messageSender = new TcpMessageSender(message, destinationAddress, port);
                 break;
             case UDP:
-                UdpMessageSender udpMessageSender = new UdpMessageSender(message, screenUpdater, destinationAddress, port);
-                udpMessageSender.execute();
+                messageSender = new UdpMessageSender(message, destinationAddress, port);
                 break;
             default:
+                messageSender = new TcpMessageSender(message, destinationAddress, port);
                 break;
         }
+
+        messageSender.execute();
 
     }
 
     @Override
+    public synchronized void registerHandler(Handler handler) {
+        if (messageListener != null) {
+            messageListener.registerHandler(handler);
+        }
+    }
+
+    @Override
+    public synchronized void unregisterHandler(Handler handler) {
+        if (messageListener != null) {
+            messageListener.unregisterHandler(handler);
+        }
+    }
+
+    @Override
     public void onDestroyObject () {
-        if (destroyableListener != null) {
-            destroyableListener.onDestroyObject();
+        if (messageListener != null) {
+            messageListener.onDestroyObject();
         }
     }
 

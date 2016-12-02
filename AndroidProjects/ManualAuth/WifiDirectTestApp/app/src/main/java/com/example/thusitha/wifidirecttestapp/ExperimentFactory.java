@@ -3,10 +3,6 @@ package com.example.thusitha.wifidirecttestapp;
 
 public class ExperimentFactory {
 
-    public enum ExperimentType {
-        EXPERIMENT_1
-    }
-
     private MessageManager messageManager;
 
     public ExperimentFactory(MessageManager messageManager) {

@@ -7,25 +7,19 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
 
-public class TcpMessageSender extends AsyncTask<Void, Void, Void> {
+public class TcpMessageSender extends MessageSender {
 
-    private String dstAddress;
-    private int dstPort;
-    private ScreenUpdater activity;
-    private String message = "";
-
-    public TcpMessageSender(String message, ScreenUpdater activity, String dstAddress, int dstPort) {
+    public TcpMessageSender(String message, String address, int port) {
         this.message = message;
-        this.activity = activity;
-        this.dstAddress = dstAddress;
-        this.dstPort = dstPort;
+        this.address = address;
+        this.port = port;
     }
 
     @Override
     protected Void doInBackground(Void... params) {
         Socket socket;
         try {
-            socket = new Socket(dstAddress, dstPort);
+            socket = new Socket(address, port);
             OutputStream outputStream = socket.getOutputStream();
             PrintStream printStream = new PrintStream(outputStream);
             printStream.print(message);
@@ -35,12 +29,6 @@ public class TcpMessageSender extends AsyncTask<Void, Void, Void> {
             e.printStackTrace();
         }
         return null;
-    }
-
-    @Override
-    protected void onPostExecute(Void aVoid) {
-        activity.displayMessage(false, new MessageContents(System.currentTimeMillis(), message));
-        super.onPostExecute(aVoid);
     }
 
 }

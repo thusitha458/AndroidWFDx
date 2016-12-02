@@ -11,18 +11,12 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class UdpMessageSender extends AsyncTask<Void, Void, Void> {
+public class UdpMessageSender extends MessageSender {
 
-    private String message;
-    private ScreenUpdater screenUpdater;
-    private String dstAddress;
-    private int dstPort;
-
-    public UdpMessageSender (String message, ScreenUpdater screenUpdater, String dstAddress, int dstPort) {
+    public UdpMessageSender (String message, String address, int port) {
         this.message = message;
-        this.screenUpdater = screenUpdater;
-        this.dstAddress = dstAddress;
-        this.dstPort = dstPort;
+        this.address = address;
+        this.port = port;
     }
 
     @Override
@@ -31,10 +25,10 @@ public class UdpMessageSender extends AsyncTask<Void, Void, Void> {
         try {
 
             DatagramSocket datagramSocket = new DatagramSocket();
-            InetAddress ip = InetAddress.getByName(dstAddress);
+            InetAddress ip = InetAddress.getByName(address);
             byte [] messageBytes = message.getBytes();
 
-            DatagramPacket datagramPacket = new DatagramPacket(messageBytes, messageBytes.length, ip, dstPort);
+            DatagramPacket datagramPacket = new DatagramPacket(messageBytes, messageBytes.length, ip, port);
             datagramSocket.send(datagramPacket);
 
         } catch (IOException e) {
@@ -42,12 +36,6 @@ public class UdpMessageSender extends AsyncTask<Void, Void, Void> {
         }
 
         return null;
-    }
-
-    @Override
-    protected void onPostExecute(Void aVoid) {
-        screenUpdater.displayMessage(false, new MessageContents(System.currentTimeMillis(), message));
-        super.onPostExecute(aVoid);
     }
 
 }

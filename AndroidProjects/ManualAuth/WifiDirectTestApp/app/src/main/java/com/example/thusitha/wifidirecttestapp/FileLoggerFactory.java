@@ -3,10 +3,6 @@ package com.example.thusitha.wifidirecttestapp;
 
 public class FileLoggerFactory {
 
-    public enum LoggerType {
-        LOGGER_1
-    }
-
     public FileLoggerFactory() {}
 
     public FileLogger getFileLogger (LoggerType experiment) {

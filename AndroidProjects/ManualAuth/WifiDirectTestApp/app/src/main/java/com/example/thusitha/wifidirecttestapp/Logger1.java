@@ -33,17 +33,12 @@ public class Logger1 implements FileLogger {
 
         this.fileName = fileName;
         logFile = new File(Environment.getExternalStorageDirectory() + File.separator + fileName);
-        Log.d(WifiDirectActivity.LOG_TAG, Environment.getExternalStorageDirectory().toString());
 
         if (!logFile.exists()) {
 
-            Log.d(WifiDirectActivity.LOG_TAG, "file doesn't exist");
-
             try {
-                boolean success = logFile.createNewFile();
-                Log.d(WifiDirectActivity.LOG_TAG, "Log file is created");
+                logFile.createNewFile();
             } catch (IOException ioe) {
-                Log.d(WifiDirectActivity.LOG_TAG, ioe.getMessage());
                 ioe.printStackTrace();
             }
 

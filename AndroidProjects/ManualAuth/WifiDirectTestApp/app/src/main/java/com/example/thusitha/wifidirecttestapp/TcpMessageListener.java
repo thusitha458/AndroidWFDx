@@ -6,15 +6,9 @@ import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class TcpMessageListener extends Thread implements DestroyableObject {
+public class TcpMessageListener extends MessageListener {
 
-    private ScreenUpdater screenUpdater;
-    private ClientListManager clientListManager;
-    private int port;
-
-    public TcpMessageListener(ScreenUpdater screenUpdater, ClientListManager clientListManager, int port) {
-        this.screenUpdater = screenUpdater;
-        this.clientListManager = clientListManager;
+    public TcpMessageListener(int port) {
         this.port = port;
     }
 
@@ -33,11 +27,6 @@ public class TcpMessageListener extends Thread implements DestroyableObject {
         }
     }
 
-    @Override
-    public void onDestroyObject() {
-        this.interrupt();
-    }
-
     private class ProcessMessageThread extends Thread {
         private Socket clientSocket;
         public ProcessMessageThread (Socket clientSocket) {
@@ -47,7 +36,7 @@ public class TcpMessageListener extends Thread implements DestroyableObject {
         @Override
         public void run() {
 
-            clientListManager.updateCurrentClient(clientSocket.getInetAddress().getHostAddress());
+            sendClientIpMessage(clientSocket.getInetAddress().getHostAddress());
 
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
             byte[] buffer = new byte[1024];
@@ -66,8 +55,12 @@ public class TcpMessageListener extends Thread implements DestroyableObject {
                 e.printStackTrace();
             }
 
-            screenUpdater.displayMessage(true, new MessageContents(System.currentTimeMillis(), message));
+            sendWFDMessageContents(message);
 
         }
     }
+
+
+
+
 }

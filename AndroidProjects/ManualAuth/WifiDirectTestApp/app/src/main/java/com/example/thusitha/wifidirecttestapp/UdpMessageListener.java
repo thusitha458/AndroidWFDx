@@ -1,19 +1,12 @@
 package com.example.thusitha.wifidirecttestapp;
 
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-public class UdpMessageListener extends Thread implements DestroyableObject {
+public class UdpMessageListener extends MessageListener {
 
-    private ScreenUpdater screenUpdater;
-    private ClientListManager clientListManager;
-    private int port;
-
-    public UdpMessageListener (ScreenUpdater screenUpdater, ClientListManager clientListManager, int port) {
-        this.screenUpdater = screenUpdater;
-        this.clientListManager = clientListManager;
+    public UdpMessageListener (int port) {
         this.port = port;
     }
 
@@ -44,11 +37,6 @@ public class UdpMessageListener extends Thread implements DestroyableObject {
 
     }
 
-    @Override
-    public void onDestroyObject() {
-        this.interrupt();
-    }
-
     private class ProcessMessageThread extends Thread {
 
         private String messageData;
@@ -61,8 +49,8 @@ public class UdpMessageListener extends Thread implements DestroyableObject {
 
         @Override
         public void run () {
-            clientListManager.updateCurrentClient(senderAddress);
-            screenUpdater.displayMessage(true, new MessageContents(System.currentTimeMillis(), messageData));
+            sendClientIpMessage(senderAddress);
+            sendWFDMessageContents(messageData);
         }
 
 
