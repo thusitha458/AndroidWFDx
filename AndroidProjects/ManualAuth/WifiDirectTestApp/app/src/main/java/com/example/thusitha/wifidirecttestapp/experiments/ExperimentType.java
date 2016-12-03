@@ -2,7 +2,9 @@ package com.example.thusitha.wifidirecttestapp.experiments;
 
 
 public enum ExperimentType {
-    EXPERIMENT_1("Experiment1");
+    THROUGHPUT("Throughput"),
+    PACKET_LOSS("Packet Loss"),
+    PACKET_DELAY("Packet Delay");
 
     private final String name;
 

@@ -8,25 +8,19 @@ import android.os.Message;
 import com.example.thusitha.wifidirecttestapp.logging.FileLoggerFactory;
 import com.example.thusitha.wifidirecttestapp.logging.LoggerType;
 
-public class Experiment1 extends Experiment {
+public abstract class PeriodicSender extends Experiment {
 
-    private Handler periodicMessageHandler = new Handler();
+    protected Handler periodicMessageHandler = new Handler();
 
-    private long currentId = 0;
-    private long messageLimit;
+    protected long currentId = 0;
+    protected long messageLimit;
 
-    private boolean isSender = false;
-    private long periodMS = 2000;
-    private long durationMS = 20000;
-    private String destinationAddress;
+    protected boolean isSender = false;
+    protected long periodMS = 2000;
+    protected long durationMS = 20000;
+    protected int distanceM = 10;
+    protected String destinationAddress;
 
-    private static Experiment1 instance = new Experiment1();
-
-    private Experiment1 () {}
-
-    public static Experiment1 getInstance () {
-        return instance;
-    }
 
     @Override
     public void startExperiment() {
@@ -42,13 +36,18 @@ public class Experiment1 extends Experiment {
     }
 
     @Override
-    protected void setFileLogger () {
+    protected void setFileLogger() {
         fileLogger = (new FileLoggerFactory()).getFileLogger(LoggerType.LOGGER_1);
-        fileLogger.createLogFile();
+        fileLogger.createLogFile("PS-"
+                .concat(String.valueOf(periodMS).concat("-"))
+                .concat(String.valueOf(durationMS).concat("-"))
+                .concat(String.valueOf(distanceM))
+                .concat(".txt")
+        );
     }
 
     @Override
-    public void run () {
+    public void run() {
 
         // if sender send Messages, else start listening for messages
         if (isSender) {
@@ -57,16 +56,16 @@ public class Experiment1 extends Experiment {
             Looper.prepare();
             setMessageHandler();
             Looper.loop();
-            while(true) {
+            while (true) {
                 // nothing
             }
         }
     }
 
-    protected String constructMessage (long id) {
+    protected String constructMessage(long id) {
         String str = Long.toString(id);
-        char [] strArr = str.toCharArray();
-        char [] dataArr = new char[20];
+        char[] strArr = str.toCharArray();
+        char[] dataArr = new char[20];
         for (int i = 0; i < dataArr.length; i++) {
 
             if (i < strArr.length) {
@@ -79,7 +78,7 @@ public class Experiment1 extends Experiment {
         return new String(dataArr);
     }
 
-    private long getNextId () {
+    protected long getNextId() {
         if (currentId < messageLimit) {
             return (currentId++);
         } else {
@@ -87,7 +86,7 @@ public class Experiment1 extends Experiment {
         }
     }
 
-    protected void setMessageLimit () {
+    protected void setMessageLimit() {
         messageLimit = durationMS / periodMS;
     }
 
@@ -95,11 +94,10 @@ public class Experiment1 extends Experiment {
     @Override
     public void setParameters(String... parameters) {
         this.isSender = Boolean.valueOf(parameters[0]);
-        if (this.isSender) {
-            this.periodMS = Long.valueOf(parameters[1]);
-            this.durationMS = Long.valueOf(parameters[2]);
-            this.destinationAddress = parameters[3];
-        }
+        this.periodMS = Long.valueOf(parameters[1]);
+        this.durationMS = Long.valueOf(parameters[2]);
+        this.distanceM = Integer.valueOf(parameters[3]);
+        this.destinationAddress = parameters[4];
     }
 
     @Override
@@ -114,7 +112,7 @@ public class Experiment1 extends Experiment {
     }
 
 
-    private Runnable messageSenderRunnable = new Runnable() {
+    protected Runnable messageSenderRunnable = new Runnable() {
 
         @Override
         public void run() {

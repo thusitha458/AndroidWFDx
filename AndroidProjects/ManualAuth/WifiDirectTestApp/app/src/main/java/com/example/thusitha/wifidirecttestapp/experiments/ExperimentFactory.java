@@ -11,9 +11,18 @@ public class ExperimentFactory {
     }
 
     public Experiment getExperiment (ExperimentType experimentType) {
+        Experiment exp;
         switch (experimentType) {
-            case EXPERIMENT_1:
-                Experiment exp = Experiment1.getInstance();
+            case THROUGHPUT:
+                exp = ThroughputExperiment.getInstance();
+                exp.setMessageManager(messageManager);
+                return exp;
+            case PACKET_LOSS:
+                exp = PacketLossExperiment.getInstance();
+                exp.setMessageManager(messageManager);
+                return exp;
+            case PACKET_DELAY:
+                exp = PacketDelayExperiment.getInstance();
                 exp.setMessageManager(messageManager);
                 return exp;
             default:

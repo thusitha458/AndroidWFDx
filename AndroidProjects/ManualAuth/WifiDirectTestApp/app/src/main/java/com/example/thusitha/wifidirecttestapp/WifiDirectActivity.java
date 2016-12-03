@@ -334,18 +334,21 @@ public class WifiDirectActivity extends AppCompatActivity implements AdapterView
 
         EditText periodText = (EditText) findViewById(R.id.period_text);
         EditText durationText = (EditText) findViewById(R.id.duration_text);
+        EditText distanceText = (EditText) findViewById(R.id.distance_text);
 
         String periodStr = periodText.getText().toString();
         String durationStr = durationText.getText().toString();
+        String distanceStr = distanceText.getText().toString();
 
-        if (periodStr.equals("") || durationStr.equals("")) {
-            Toast.makeText(this, "Enter period/duration", Toast.LENGTH_SHORT).show();
+        if (periodStr.equals("") || durationStr.equals("") || distanceStr.equals("")) {
+            Toast.makeText(this, "Enter period/duration/distance first", Toast.LENGTH_SHORT).show();
             return;
         }
 
         experiment.setParameters(String.valueOf(!isGroupOwner),
                 periodStr,
                 durationStr,
+                distanceStr,
                 isGroupOwner ? currentClientAddress : groupOwnerAddress
         );
 
