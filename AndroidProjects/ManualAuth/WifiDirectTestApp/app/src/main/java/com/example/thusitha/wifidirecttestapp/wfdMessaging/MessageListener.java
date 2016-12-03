@@ -1,7 +1,12 @@
-package com.example.thusitha.wifidirecttestapp;
+package com.example.thusitha.wifidirecttestapp.wfdMessaging;
 
 import android.os.Handler;
 import android.os.Message;
+
+import com.example.thusitha.wifidirecttestapp.DestroyableObject;
+import com.example.thusitha.wifidirecttestapp.threadMessaging.InterThreadMessageTypes;
+import com.example.thusitha.wifidirecttestapp.threadMessaging.InterThreadMessenger;
+
 import java.util.HashSet;
 import java.util.Set;
 

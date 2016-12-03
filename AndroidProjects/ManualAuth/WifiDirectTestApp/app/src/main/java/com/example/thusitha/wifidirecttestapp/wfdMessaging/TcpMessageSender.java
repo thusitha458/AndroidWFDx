@@ -1,7 +1,8 @@
-package com.example.thusitha.wifidirecttestapp;
+package com.example.thusitha.wifidirecttestapp.wfdMessaging;
 
 
-import android.os.AsyncTask;
+import com.example.thusitha.wifidirecttestapp.wfdMessaging.MessageSender;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;

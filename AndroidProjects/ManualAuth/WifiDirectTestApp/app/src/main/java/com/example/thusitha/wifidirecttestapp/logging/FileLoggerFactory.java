@@ -1,5 +1,4 @@
-package com.example.thusitha.wifidirecttestapp;
-
+package com.example.thusitha.wifidirecttestapp.logging;
 
 public class FileLoggerFactory {
 

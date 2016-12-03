@@ -1,7 +1,11 @@
-package com.example.thusitha.wifidirecttestapp;
+package com.example.thusitha.wifidirecttestapp.experiments;
 
 import android.os.Handler;
 import android.os.Message;
+
+import com.example.thusitha.wifidirecttestapp.FileLogger;
+import com.example.thusitha.wifidirecttestapp.threadMessaging.InterThreadMessageTypes;
+import com.example.thusitha.wifidirecttestapp.wfdMessaging.MessageManager;
 
 public abstract class Experiment extends Thread {
 

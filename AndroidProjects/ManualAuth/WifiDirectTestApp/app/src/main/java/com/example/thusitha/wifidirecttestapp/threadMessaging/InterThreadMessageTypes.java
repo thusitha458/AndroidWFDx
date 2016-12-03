@@ -1,4 +1,4 @@
-package com.example.thusitha.wifidirecttestapp;
+package com.example.thusitha.wifidirecttestapp.threadMessaging;
 
 
 public final class InterThreadMessageTypes {

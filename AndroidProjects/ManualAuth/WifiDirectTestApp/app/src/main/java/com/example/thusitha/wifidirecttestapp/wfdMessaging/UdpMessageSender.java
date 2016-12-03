@@ -1,15 +1,12 @@
-package com.example.thusitha.wifidirecttestapp;
+package com.example.thusitha.wifidirecttestapp.wfdMessaging;
 
 
-import android.os.AsyncTask;
+import com.example.thusitha.wifidirecttestapp.wfdMessaging.MessageSender;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 
 public class UdpMessageSender extends MessageSender {
 

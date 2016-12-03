@@ -1,5 +1,6 @@
-package com.example.thusitha.wifidirecttestapp;
+package com.example.thusitha.wifidirecttestapp.experiments;
 
+import com.example.thusitha.wifidirecttestapp.wfdMessaging.MessageManager;
 
 public class ExperimentFactory {
 

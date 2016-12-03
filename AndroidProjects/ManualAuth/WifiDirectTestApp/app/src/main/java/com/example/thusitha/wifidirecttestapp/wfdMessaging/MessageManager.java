@@ -1,7 +1,10 @@
-package com.example.thusitha.wifidirecttestapp;
+package com.example.thusitha.wifidirecttestapp.wfdMessaging;
 
 
 import android.os.Handler;
+
+import com.example.thusitha.wifidirecttestapp.DestroyableObject;
+import com.example.thusitha.wifidirecttestapp.threadMessaging.InterThreadMessenger;
 
 public class MessageManager implements DestroyableObject, InterThreadMessenger {
 
