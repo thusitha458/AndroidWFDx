@@ -95,9 +95,11 @@ public class Experiment1 extends Experiment {
     @Override
     public void setParameters(String... parameters) {
         this.isSender = Boolean.valueOf(parameters[0]);
-        this.periodMS = Long.valueOf(parameters[1]);
-        this.durationMS = Long.valueOf(parameters[2]);
-        this.destinationAddress = parameters[3];
+        if (this.isSender) {
+            this.periodMS = Long.valueOf(parameters[1]);
+            this.durationMS = Long.valueOf(parameters[2]);
+            this.destinationAddress = parameters[3];
+        }
     }
 
     @Override

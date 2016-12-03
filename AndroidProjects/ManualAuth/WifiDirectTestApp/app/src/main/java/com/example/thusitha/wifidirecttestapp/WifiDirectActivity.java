@@ -16,10 +16,16 @@ import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import com.example.thusitha.wifidirecttestapp.experiments.Experiment;
 import com.example.thusitha.wifidirecttestapp.experiments.ExperimentFactory;
@@ -29,7 +35,7 @@ import com.example.thusitha.wifidirecttestapp.wfdMessaging.MessageManager;
 import com.example.thusitha.wifidirecttestapp.wfdMessaging.TcpMessageListener;
 import com.example.thusitha.wifidirecttestapp.wfdMessaging.TransportProtocol;
 
-public class WifiDirectActivity extends AppCompatActivity {
+public class WifiDirectActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     public static final int SERVER_PORT = 8877;
     public static String LOG_TAG = "Logs";
@@ -66,17 +72,29 @@ public class WifiDirectActivity extends AppCompatActivity {
     private boolean isClientAddressSet = false;
     private boolean clientSentAMessage = false;
 
+    private ExperimentType selectedExperimentType = ExperimentType.values()[0];
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wifi_direct);
-
-        messageHandler = new ActivityMessageHandler(this);
-        messageManager = new MessageManager(TransportProtocol.UDP, SERVER_PORT);
-
+        //text view
         textView = (TextView) findViewById(R.id.status_view);
         textView.setMovementMethod(new ScrollingMovementMethod());
-
+        //set spinner
+        Spinner experimentSpinner = (Spinner) findViewById(R.id.experiment_spinner);
+        experimentSpinner.setOnItemSelectedListener(this);
+        List<String> typeList = new ArrayList<>();
+        for (ExperimentType type: ExperimentType.values()) {
+            typeList.add(type.toString());
+        }
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, typeList);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        experimentSpinner.setAdapter(spinnerAdapter);
+        //set message handler
+        messageHandler = new ActivityMessageHandler(this);
+        messageManager = new MessageManager(TransportProtocol.UDP, SERVER_PORT);
+        //wifi direct
         wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         wifiLock = wifiManager.createWifiLock("wifi_p2p_lock");
         wifiLock.setReferenceCounted(false);
@@ -170,7 +188,12 @@ public class WifiDirectActivity extends AppCompatActivity {
         config.deviceAddress = device.deviceAddress;
         config.wps.setup = WpsInfo.PBC;
 
-//        config.groupOwnerIntent = 15;
+        CheckBox makeGo = (CheckBox) findViewById(R.id.is_go_check_box);
+        if (makeGo.isChecked()) {
+            config.groupOwnerIntent = 15;
+        } else {
+            config.groupOwnerIntent = 1;
+        }
 
         mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
 
@@ -203,7 +226,7 @@ public class WifiDirectActivity extends AppCompatActivity {
 
                     messageManager.startListener();
                     messageManager.registerHandler(messageHandler);
-                    experiment = (new ExperimentFactory(messageManager)).getExperiment(ExperimentType.EXPERIMENT_1);
+                    experiment = (new ExperimentFactory(messageManager)).getExperiment(selectedExperimentType);
                 } else if (info.groupFormed) {
                     setGroupOwner(false);
                     setConnected(true);
@@ -212,7 +235,7 @@ public class WifiDirectActivity extends AppCompatActivity {
 
                     messageManager.startListener();
                     messageManager.registerHandler(messageHandler);
-                    experiment = (new ExperimentFactory(messageManager)).getExperiment(ExperimentType.EXPERIMENT_1);
+                    experiment = (new ExperimentFactory(messageManager)).getExperiment(selectedExperimentType);
                 }
             }
         };
@@ -299,7 +322,7 @@ public class WifiDirectActivity extends AppCompatActivity {
 
     public void onClickStartExperiment(View view) {
 
-        if (experiment == null || (isGroupOwner && !isClientAddressSet) || (!isGroupOwner && !clientSentAMessage)) {
+        if (experiment == null) {
             Toast.makeText(this, "Not ready for an experiment yet", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -315,20 +338,29 @@ public class WifiDirectActivity extends AppCompatActivity {
         String periodStr = periodText.getText().toString();
         String durationStr = durationText.getText().toString();
 
-        if (!periodStr.equals("") && !durationStr.equals("")) {
-
-            experiment.setParameters(String.valueOf(isGroupOwner),
-                    periodStr,
-                    durationStr,
-                    isGroupOwner ? currentClientAddress : groupOwnerAddress
-            );
-
-            experiment.startExperiment();
-            textView.append("Experiment started...\n");
-
-        } else {
+        if (periodStr.equals("") || durationStr.equals("")) {
             Toast.makeText(this, "Enter period/duration", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        experiment.setParameters(String.valueOf(!isGroupOwner),
+                periodStr,
+                durationStr,
+                isGroupOwner ? currentClientAddress : groupOwnerAddress
+        );
+
+        experiment.startExperiment();
+        textView.append("Experiment started...\n");
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        selectedExperimentType = ExperimentType.values()[position];
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        selectedExperimentType = ExperimentType.values()[0];
     }
 }
 
@@ -336,12 +368,12 @@ class ActivityMessageHandler extends Handler {
 
     private WifiDirectActivity activity;
 
-    ActivityMessageHandler (WifiDirectActivity activity) {
+    ActivityMessageHandler(WifiDirectActivity activity) {
         this.activity = activity;
     }
 
     @Override
-    public void handleMessage (Message message) {
+    public void handleMessage(Message message) {
 
         switch (message.what) {
 

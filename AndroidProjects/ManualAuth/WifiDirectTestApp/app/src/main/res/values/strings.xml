@@ -5,4 +5,6 @@
     <string name="duration">Duration</string>
     <string name="period">Period</string>
     <string name="start">Start Experiment</string>
+    <string name="distance">Distance</string>
+    <string name="make_go">Make GO</string>
 </resources>
