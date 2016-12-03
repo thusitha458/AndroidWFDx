@@ -3,7 +3,7 @@ package com.example.thusitha.wifidirecttestapp.experiments;
 import android.os.Handler;
 import android.os.Message;
 
-import com.example.thusitha.wifidirecttestapp.FileLogger;
+import com.example.thusitha.wifidirecttestapp.logging.FileLogger;
 import com.example.thusitha.wifidirecttestapp.threadMessaging.InterThreadMessageTypes;
 import com.example.thusitha.wifidirecttestapp.wfdMessaging.MessageManager;
 
@@ -14,10 +14,10 @@ public abstract class Experiment extends Thread {
     protected FileLogger fileLogger;
     protected boolean isRunning = false;
 
-    abstract void startExperiment ();
-    abstract void setParameters (String... parameters);
-    abstract void handleWFDMessage (Message message);
-    abstract void setFileLogger();
+    public abstract void startExperiment();
+    public abstract void setParameters(String... parameters);
+    protected abstract void handleWFDMessage (Message message);
+    protected abstract void setFileLogger();
 
     //ALWAYS CALL super.setMessageHandler() when you override this
     protected void setMessageHandler () {

@@ -5,7 +5,7 @@ import android.os.Looper;
 import android.os.Handler;
 import android.os.Message;
 
-import com.example.thusitha.wifidirecttestapp.FileLoggerFactory;
+import com.example.thusitha.wifidirecttestapp.logging.FileLoggerFactory;
 import com.example.thusitha.wifidirecttestapp.logging.LoggerType;
 
 public class Experiment1 extends Experiment {
@@ -107,7 +107,7 @@ public class Experiment1 extends Experiment {
     }
 
     @Override
-    void handleWFDMessage(Message message) {
+    protected void handleWFDMessage(Message message) {
         fileLogger.appendLog(message.obj.toString());
     }
 

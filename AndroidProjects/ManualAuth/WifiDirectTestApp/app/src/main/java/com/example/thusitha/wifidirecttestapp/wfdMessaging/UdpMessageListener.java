@@ -1,7 +1,5 @@
 package com.example.thusitha.wifidirecttestapp.wfdMessaging;
 
-import com.example.thusitha.wifidirecttestapp.wfdMessaging.MessageListener;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;

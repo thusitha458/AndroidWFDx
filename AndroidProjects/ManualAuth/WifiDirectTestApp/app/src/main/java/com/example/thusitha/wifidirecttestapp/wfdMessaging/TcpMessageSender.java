@@ -1,8 +1,5 @@
 package com.example.thusitha.wifidirecttestapp.wfdMessaging;
 
-
-import com.example.thusitha.wifidirecttestapp.wfdMessaging.MessageSender;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
