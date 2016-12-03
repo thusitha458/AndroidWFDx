@@ -52,10 +52,10 @@ public class Logger1 implements FileLogger {
 
         String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
         appendLog("\n" +
-                "Start of new experiment @ "
-                + currentDateTimeString +
+                "Start of new experiment @ " +
+                currentDateTimeString +
                 "\n"
-                );
+        );
 
     }
 
