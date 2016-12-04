@@ -14,8 +14,7 @@ public class UdpMessageSender extends MessageSender {
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
-
+    public void run () {
         try {
 
             DatagramSocket datagramSocket = new DatagramSocket();
@@ -28,8 +27,6 @@ public class UdpMessageSender extends MessageSender {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return null;
     }
 
 }

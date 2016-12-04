@@ -51,8 +51,16 @@ public class MessageManager implements DestroyableObject, InterThreadMessenger {
                 break;
         }
 
-        messageSender.execute();
+        messageSender.start();
 
+    }
+
+    public TransportProtocol getProtocol () {
+        return protocol;
+    }
+
+    public int getPort () {
+        return port;
     }
 
     @Override

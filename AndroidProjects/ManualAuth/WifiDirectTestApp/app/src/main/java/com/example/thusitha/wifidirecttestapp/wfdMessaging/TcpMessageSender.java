@@ -14,7 +14,7 @@ public class TcpMessageSender extends MessageSender {
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
+    public void run () {
         Socket socket;
         try {
             socket = new Socket(address, port);
@@ -26,7 +26,6 @@ public class TcpMessageSender extends MessageSender {
             message = e.toString();
             e.printStackTrace();
         }
-        return null;
     }
 
 }

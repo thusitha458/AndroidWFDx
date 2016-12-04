@@ -2,19 +2,24 @@ package com.example.thusitha.wifidirecttestapp.experiments;
 
 
 import android.os.Looper;
-import android.os.Handler;
 import android.os.Message;
+import java.util.Arrays;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
+import com.example.thusitha.wifidirecttestapp.logging.FileLogger;
 import com.example.thusitha.wifidirecttestapp.logging.FileLoggerFactory;
 import com.example.thusitha.wifidirecttestapp.logging.LoggerType;
+import com.example.thusitha.wifidirecttestapp.wfdMessaging.TransportProtocol;
+import com.example.thusitha.wifidirecttestapp.wfdMessaging.UdpMessageSender;
 
 public abstract class PeriodicSender extends Experiment {
 
-    protected Handler periodicMessageHandler = new Handler();
+    protected ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(5);
+    protected static ScheduledFuture<?> t;
 
-    protected long currentId = 0;
     protected long messageLimit;
-
     protected boolean isSender = false;
     protected long periodMS = 2000;
     protected long durationMS = 20000;
@@ -51,7 +56,29 @@ public abstract class PeriodicSender extends Experiment {
 
         // if sender send Messages, else start listening for messages
         if (isSender) {
-            messageSenderRunnable.run();
+
+            TransportProtocol protocol = messageManager.getProtocol();
+            Runnable runnable;
+
+            switch (protocol) {
+                case TCP:
+                    runnable = new TcpSenderRunnable(destinationAddress, messageManager.getPort(), messageLimit, fileLogger);
+                    break;
+                case UDP:
+                    runnable = new UdpSenderRunnable(destinationAddress, messageManager.getPort(), messageLimit, fileLogger);
+                    break;
+                default:
+                    runnable = new TcpSenderRunnable(destinationAddress, messageManager.getPort(), messageLimit, fileLogger);
+                    break;
+            }
+
+            t = executor.scheduleAtFixedRate(
+                    runnable,
+                    1000,
+                    periodMS,
+                    TimeUnit.MILLISECONDS
+            );
+
         } else {
             Looper.prepare();
             setMessageHandler();
@@ -59,30 +86,6 @@ public abstract class PeriodicSender extends Experiment {
             while (true) {
                 // nothing
             }
-        }
-    }
-
-    protected String constructMessage(long id) {
-        String str = Long.toString(id);
-        char[] strArr = str.toCharArray();
-        char[] dataArr = new char[20];
-        for (int i = 0; i < dataArr.length; i++) {
-
-            if (i < strArr.length) {
-                dataArr[i] = strArr[i];
-            } else {
-                dataArr[i] = ' ';
-            }
-
-        }
-        return new String(dataArr);
-    }
-
-    protected long getNextId() {
-        if (currentId < messageLimit) {
-            return (currentId++);
-        } else {
-            return -1;
         }
     }
 
@@ -111,25 +114,82 @@ public abstract class PeriodicSender extends Experiment {
         fileLogger.appendLog(message.obj.toString());
     }
 
+}
 
-    protected Runnable messageSenderRunnable = new Runnable() {
+class UdpSenderRunnable extends UdpMessageSender {
 
-        @Override
-        public void run() {
-            long nextId;
-            if ((nextId = getNextId()) >= 0) {
-                String messageData = constructMessage(nextId);
-                messageManager.sendMessage(
-                        destinationAddress,
-                        messageData
-                );
-                fileLogger.appendLog(messageData.concat("@").concat(Long.toString(System.currentTimeMillis())));
-                periodicMessageHandler.postDelayed(this, periodMS);
-            } else {
-                periodicMessageHandler.removeCallbacks(this);
+    static long count = 0;
+    static long messageLimit;
+    static FileLogger fileLogger;
+    static final Object countLock = new Object();
+
+    public UdpSenderRunnable(String address, int port, long limit, FileLogger logger) {
+        super(null, address, port);
+        messageLimit = limit;
+        fileLogger = logger;
+    }
+
+    @Override
+    public void run () {
+
+        synchronized (countLock) {
+            if (count >= messageLimit) {
+                PeriodicSender.t.cancel(false);
             }
+            setMessage(count++);
+            fileLogger.appendLog(message.concat("@").concat(Long.toString(System.currentTimeMillis())));
         }
 
-    };
+        super.run();
+    }
+
+    private void setMessage (long id) {
+        String str = Long.toString(id);
+        char[] strArr = str.toCharArray();
+        char[] dataArr = Arrays.copyOf(strArr, 20);
+        if (strArr.length < 20) {
+            Arrays.fill(dataArr, strArr.length, dataArr.length - 1, ' ');
+        }
+        message = new String(dataArr);
+    }
+
+}
+
+class TcpSenderRunnable extends UdpMessageSender {
+
+    static long count = 0;
+    static long messageLimit;
+    static FileLogger fileLogger;
+    static final Object countLock = new Object();
+
+    public TcpSenderRunnable(String address, int port, long limit, FileLogger logger) {
+        super(null, address, port);
+        messageLimit = limit;
+        fileLogger = logger;
+    }
+
+    @Override
+    public void run () {
+
+        synchronized (countLock) {
+            if (count >= messageLimit) {
+                PeriodicSender.t.cancel(false);
+            }
+            setMessage(count++);
+            fileLogger.appendLog(message.concat("@").concat(Long.toString(System.currentTimeMillis())));
+        }
+
+        super.run();
+    }
+
+    private void setMessage (long id) {
+        String str = Long.toString(id);
+        char[] strArr = str.toCharArray();
+        char[] dataArr = Arrays.copyOf(strArr, 20);
+        if (strArr.length < 20) {
+            Arrays.fill(dataArr, strArr.length, dataArr.length - 1, ' ');
+        }
+        message = new String(dataArr);
+    }
 
 }

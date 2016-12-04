@@ -383,9 +383,9 @@ class ActivityMessageHandler extends Handler {
             case InterThreadMessageTypes.CLIENT_IP_ADDRESS:
                 activity.updateCurrentClient(message.obj.toString());
                 break;
-            case InterThreadMessageTypes.WIFI_DIRECT_MESSAGE:
-                activity.displayMessage(true, message.obj.toString());
-                break;
+//            case InterThreadMessageTypes.WIFI_DIRECT_MESSAGE:
+//                activity.displayMessage(true, message.obj.toString());
+//                break;
             default:
                 break;
 
