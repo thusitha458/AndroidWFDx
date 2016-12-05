@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class TcpMessageListener extends MessageListener {
 
@@ -38,8 +39,8 @@ public class TcpMessageListener extends MessageListener {
 
             sendClientIpMessage(clientSocket.getInetAddress().getHostAddress());
 
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
-            byte[] buffer = new byte[1024];
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024 * 2);
+            byte[] buffer = new byte[1024 * 2];
 
             int bytesRead;
             InputStream inputStream = null;

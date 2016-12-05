@@ -13,7 +13,7 @@ public class UdpMessageListener extends MessageListener {
     @Override
     public void run() {
 
-        byte buf [] = new byte[4096];
+        byte buf [] = new byte[1024 * 2];
         DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
 
         try {

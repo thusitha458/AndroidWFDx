@@ -1,6 +1,5 @@
 package com.example.thusitha.wifidirecttestapp.experiments;
 
-
 import android.os.Looper;
 import android.os.Message;
 import java.util.Arrays;
@@ -26,12 +25,14 @@ public abstract class PeriodicSender extends Experiment {
     protected int distanceM = 10;
     protected String destinationAddress;
 
+//    protected static char[] messageChar = new char[100];
 
     @Override
     public void startExperiment() {
 
         if (messageManager == null) return;
 
+//        setMessageBuffer();
         setMessageLimit();
         setFileLogger();
 
@@ -39,6 +40,19 @@ public abstract class PeriodicSender extends Experiment {
         this.start();
 
     }
+
+//    protected void setMessageBuffer() {
+//        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "novel");
+//        BufferedInputStream buf = null;
+//        try {
+//            buf = new BufferedInputStream(new FileInputStream(file));
+//            int bytesRead = buf.read(messageBytes, 20, messageBytes.length - 20);
+//            buf.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        Arrays.fill(messageBytes, 0, 19, (byte) ' ');
+//    }
 
     @Override
     protected void setFileLogger() {
@@ -125,25 +139,28 @@ class UdpSenderRunnable extends UdpMessageSender {
 
     public UdpSenderRunnable(String address, int port, long limit, FileLogger logger) {
         super(null, address, port);
-        messageLimit = limit;
+        messageLimit = (limit - 1) * 5;
         fileLogger = logger;
     }
 
     @Override
-    public void run () {
+    public void run() {
 
         synchronized (countLock) {
-            if (count >= messageLimit) {
-                PeriodicSender.t.cancel(false);
+            for (int i = 0; i < 5; i++) {
+                if (count >= messageLimit) {
+                    PeriodicSender.t.cancel(false);
+                }
+                setMessage(count++);
+                fileLogger.appendLog(message.concat("@").concat(Long.toString(System.currentTimeMillis())));
+                super.run();
             }
-            setMessage(count++);
-            fileLogger.appendLog(message.concat("@").concat(Long.toString(System.currentTimeMillis())));
         }
 
-        super.run();
     }
 
-    private void setMessage (long id) {
+    private void setMessage(long id) {
+
         String str = Long.toString(id);
         char[] strArr = str.toCharArray();
         char[] dataArr = Arrays.copyOf(strArr, 20);
@@ -164,25 +181,28 @@ class TcpSenderRunnable extends UdpMessageSender {
 
     public TcpSenderRunnable(String address, int port, long limit, FileLogger logger) {
         super(null, address, port);
-        messageLimit = limit;
+        messageLimit = (limit - 1) * 5;
         fileLogger = logger;
     }
 
     @Override
-    public void run () {
+    public void run() {
 
         synchronized (countLock) {
-            if (count >= messageLimit) {
-                PeriodicSender.t.cancel(false);
+            for (int i = 0; i < 5; i++) {
+                if (count >= messageLimit) {
+                    PeriodicSender.t.cancel(false);
+                }
+                setMessage(count++);
+                fileLogger.appendLog(message.concat("@").concat(Long.toString(System.currentTimeMillis())));
+                super.run();
             }
-            setMessage(count++);
-            fileLogger.appendLog(message.concat("@").concat(Long.toString(System.currentTimeMillis())));
         }
 
-        super.run();
     }
 
-    private void setMessage (long id) {
+    private void setMessage(long id) {
+
         String str = Long.toString(id);
         char[] strArr = str.toCharArray();
         char[] dataArr = Arrays.copyOf(strArr, 20);
