@@ -19,9 +19,11 @@ public class PacketLossExperiment extends PeriodicSender {
     protected void setFileLogger () {
         fileLogger = (new FileLoggerFactory()).getFileLogger(LoggerType.LOGGER_1);
         fileLogger.createLogFile("pl-"
+                .concat(String.valueOf(messageSize).concat("-"))
                 .concat(String.valueOf(periodMS).concat("-"))
                 .concat(String.valueOf(durationMS).concat("-"))
-                .concat(String.valueOf(distanceM))
+                .concat(String.valueOf(distanceM).concat("-"))
+                .concat(isSender ? "s" : "r")
                 .concat(".txt")
         );
     }

@@ -7,6 +7,7 @@ import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Handler;
@@ -226,6 +227,14 @@ public class WifiDirectActivity extends AppCompatActivity implements AdapterView
                     messageManager.startListener();
                     messageManager.registerHandler(messageHandler);
                     experiment = (new ExperimentFactory(messageManager)).getExperiment(selectedExperimentType);
+
+                    // for wireshark
+                    mManager.requestGroupInfo(mChannel, new WifiP2pManager.GroupInfoListener() {
+                        @Override
+                        public void onGroupInfoAvailable(WifiP2pGroup group) {
+                            textView.append(group.getPassphrase() + "\n");
+                        }
+                    });
                 } else if (info.groupFormed) {
                     setGroupOwner(false);
                     setConnected(true);
@@ -331,20 +340,23 @@ public class WifiDirectActivity extends AppCompatActivity implements AdapterView
             return;
         }
 
+        EditText sizeText = (EditText) findViewById(R.id.message_size_text);
         EditText periodText = (EditText) findViewById(R.id.period_text);
         EditText durationText = (EditText) findViewById(R.id.duration_text);
         EditText distanceText = (EditText) findViewById(R.id.distance_text);
 
+        String sizeStr = sizeText.getText().toString();
         String periodStr = periodText.getText().toString();
         String durationStr = durationText.getText().toString();
         String distanceStr = distanceText.getText().toString();
 
-        if (periodStr.equals("") || durationStr.equals("") || distanceStr.equals("")) {
-            Toast.makeText(this, "Enter period/duration/distance first", Toast.LENGTH_SHORT).show();
+        if (sizeStr.equals("") || periodStr.equals("") || durationStr.equals("") || distanceStr.equals("")) {
+            Toast.makeText(this, "Enter size/period/duration/distance first", Toast.LENGTH_SHORT).show();
             return;
         }
 
         experiment.setParameters(String.valueOf(!isGroupOwner),
+                sizeStr,
                 periodStr,
                 durationStr,
                 distanceStr,

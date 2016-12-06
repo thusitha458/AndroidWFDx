@@ -39,8 +39,8 @@ public class TcpMessageListener extends MessageListener {
 
             sendClientIpMessage(clientSocket.getInetAddress().getHostAddress());
 
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024 * 2);
-            byte[] buffer = new byte[1024 * 2];
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(5000);
+            byte[] buffer = new byte[5000];
 
             int bytesRead;
             InputStream inputStream = null;

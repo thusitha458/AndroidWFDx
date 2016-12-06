@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import com.example.thusitha.wifidirecttestapp.logging.FileLogger;
 import com.example.thusitha.wifidirecttestapp.logging.FileLoggerFactory;
 import com.example.thusitha.wifidirecttestapp.logging.LoggerType;
+import com.example.thusitha.wifidirecttestapp.wfdMessaging.TcpMessageSender;
 import com.example.thusitha.wifidirecttestapp.wfdMessaging.TransportProtocol;
 import com.example.thusitha.wifidirecttestapp.wfdMessaging.UdpMessageSender;
 
@@ -20,6 +21,7 @@ public abstract class PeriodicSender extends Experiment {
 
     protected long messageLimit;
     protected boolean isSender = false;
+    protected int messageSize = 4500;
     protected long periodMS = 2000;
     protected long durationMS = 20000;
     protected int distanceM = 10;
@@ -58,9 +60,11 @@ public abstract class PeriodicSender extends Experiment {
     protected void setFileLogger() {
         fileLogger = (new FileLoggerFactory()).getFileLogger(LoggerType.LOGGER_1);
         fileLogger.createLogFile("PS-"
+                .concat(String.valueOf(messageSize).concat("-"))
                 .concat(String.valueOf(periodMS).concat("-"))
                 .concat(String.valueOf(durationMS).concat("-"))
-                .concat(String.valueOf(distanceM))
+                .concat(String.valueOf(distanceM).concat("-"))
+                .concat(isSender ? "s" : "r")
                 .concat(".txt")
         );
     }
@@ -76,13 +80,13 @@ public abstract class PeriodicSender extends Experiment {
 
             switch (protocol) {
                 case TCP:
-                    runnable = new TcpSenderRunnable(destinationAddress, messageManager.getPort(), messageLimit, fileLogger);
+                    runnable = new TcpSenderRunnable(destinationAddress, messageManager.getPort(), messageSize, messageLimit, fileLogger);
                     break;
                 case UDP:
-                    runnable = new UdpSenderRunnable(destinationAddress, messageManager.getPort(), messageLimit, fileLogger);
+                    runnable = new UdpSenderRunnable(destinationAddress, messageManager.getPort(), messageSize, messageLimit, fileLogger);
                     break;
                 default:
-                    runnable = new TcpSenderRunnable(destinationAddress, messageManager.getPort(), messageLimit, fileLogger);
+                    runnable = new TcpSenderRunnable(destinationAddress, messageManager.getPort(), messageSize, messageLimit, fileLogger);
                     break;
             }
 
@@ -111,10 +115,14 @@ public abstract class PeriodicSender extends Experiment {
     @Override
     public void setParameters(String... parameters) {
         this.isSender = Boolean.valueOf(parameters[0]);
-        this.periodMS = Long.valueOf(parameters[1]);
-        this.durationMS = Long.valueOf(parameters[2]);
-        this.distanceM = Integer.valueOf(parameters[3]);
-        this.destinationAddress = parameters[4];
+        this.messageSize = Integer.valueOf(parameters[1]);
+        if (messageSize < 20) {
+            messageSize = 20;
+        }
+        this.periodMS = Long.valueOf(parameters[2]);
+        this.durationMS = Long.valueOf(parameters[3]);
+        this.distanceM = Integer.valueOf(parameters[4]);
+        this.destinationAddress = parameters[5];
     }
 
     @Override
@@ -125,7 +133,9 @@ public abstract class PeriodicSender extends Experiment {
 
     @Override
     protected void handleWFDMessage(Message message) {
-        fileLogger.appendLog(message.obj.toString());
+        String [] parts = (message.obj.toString()).split("@");
+        char [] tempBuf = Arrays.copyOfRange((parts[0]).toCharArray(), 0, 19);
+        fileLogger.appendLog((new String(tempBuf)).concat("@").concat(parts[1]));
     }
 
 }
@@ -136,9 +146,11 @@ class UdpSenderRunnable extends UdpMessageSender {
     static long messageLimit;
     static FileLogger fileLogger;
     static final Object countLock = new Object();
+    private final int messageSize;
 
-    public UdpSenderRunnable(String address, int port, long limit, FileLogger logger) {
+    public UdpSenderRunnable(String address, int port, int size, long limit, FileLogger logger) {
         super(null, address, port);
+        messageSize = size;
         messageLimit = (limit - 1) * 5;
         fileLogger = logger;
     }
@@ -152,7 +164,8 @@ class UdpSenderRunnable extends UdpMessageSender {
                     PeriodicSender.t.cancel(false);
                 }
                 setMessage(count++);
-                fileLogger.appendLog(message.concat("@").concat(Long.toString(System.currentTimeMillis())));
+                char [] tempBuf = Arrays.copyOfRange(message.toCharArray(), 0, 19);
+                fileLogger.appendLog((new String(tempBuf)).concat("@").concat(Long.toString(System.currentTimeMillis())));
                 super.run();
             }
         }
@@ -163,7 +176,7 @@ class UdpSenderRunnable extends UdpMessageSender {
 
         String str = Long.toString(id);
         char[] strArr = str.toCharArray();
-        char[] dataArr = Arrays.copyOf(strArr, 20);
+        char[] dataArr = Arrays.copyOf(strArr, messageSize);
         if (strArr.length < 20) {
             Arrays.fill(dataArr, strArr.length, dataArr.length - 1, ' ');
         }
@@ -172,15 +185,17 @@ class UdpSenderRunnable extends UdpMessageSender {
 
 }
 
-class TcpSenderRunnable extends UdpMessageSender {
+class TcpSenderRunnable extends TcpMessageSender {
 
     static long count = 0;
     static long messageLimit;
     static FileLogger fileLogger;
     static final Object countLock = new Object();
+    private final int messageSize;
 
-    public TcpSenderRunnable(String address, int port, long limit, FileLogger logger) {
+    public TcpSenderRunnable(String address, int port, int size, long limit, FileLogger logger) {
         super(null, address, port);
+        this.messageSize = size;
         messageLimit = (limit - 1) * 5;
         fileLogger = logger;
     }
@@ -194,7 +209,8 @@ class TcpSenderRunnable extends UdpMessageSender {
                     PeriodicSender.t.cancel(false);
                 }
                 setMessage(count++);
-                fileLogger.appendLog(message.concat("@").concat(Long.toString(System.currentTimeMillis())));
+                char [] tempBuf = Arrays.copyOfRange(message.toCharArray(), 0, 19);
+                fileLogger.appendLog((new String(tempBuf)).concat("@").concat(Long.toString(System.currentTimeMillis())));
                 super.run();
             }
         }
@@ -205,7 +221,7 @@ class TcpSenderRunnable extends UdpMessageSender {
 
         String str = Long.toString(id);
         char[] strArr = str.toCharArray();
-        char[] dataArr = Arrays.copyOf(strArr, 20);
+        char[] dataArr = Arrays.copyOf(strArr, messageSize);
         if (strArr.length < 20) {
             Arrays.fill(dataArr, strArr.length, dataArr.length - 1, ' ');
         }

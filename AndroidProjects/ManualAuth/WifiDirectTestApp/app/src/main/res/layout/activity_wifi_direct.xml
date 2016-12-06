@@ -35,14 +35,40 @@
         android:layout_toEndOf="@+id/connect_button"
         android:onClick="onClickSendMsg"/>
 
+
     <EditText
         android:inputType="number"
         android:labelFor="@string/period"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/period_text"
+        android:text="@string/_4500"
+        android:id="@+id/message_size_text"
         android:layout_toEndOf="@id/connect_button"
         android:layout_below="@+id/connect_button"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/message_size_label"
+        android:text="@string/msg_size"
+        android:gravity="center_vertical"
+        android:textAllCaps="true"
+        android:layout_alignTop="@+id/message_size_text"
+        android:layout_toStartOf="@id/message_size_text"
+        android:layout_alignBottom="@id/message_size_text"
+        android:layout_alignStart="@id/connect_button"/>
+
+
+    <EditText
+        android:inputType="number"
+        android:labelFor="@string/period"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/_10"
+        android:id="@+id/period_text"
+        android:layout_toEndOf="@id/connect_button"
+        android:layout_below="@+id/message_size_text"
         android:layout_alignParentEnd="true" />
 
     <TextView
