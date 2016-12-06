@@ -35,7 +35,7 @@ import com.example.thusitha.wifidirecttestapp.wfdMessaging.MessageManager;
 import com.example.thusitha.wifidirecttestapp.wfdMessaging.TcpMessageListener;
 import com.example.thusitha.wifidirecttestapp.wfdMessaging.TransportProtocol;
 
-public class WifiDirectActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class WifiDirectActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, ListSelectionAlert.ListSelectionAlertListener {
 
     public static final int SERVER_PORT = 8877;
     public static String LOG_TAG = "Logs";
@@ -73,6 +73,7 @@ public class WifiDirectActivity extends AppCompatActivity implements AdapterView
     private boolean clientSentAMessage = false;
 
     private ExperimentType selectedExperimentType = ExperimentType.values()[0];
+    private boolean promptedOnce = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,18 +163,37 @@ public class WifiDirectActivity extends AppCompatActivity implements AdapterView
                         Log.d(LOG_TAG, "No peers found");
                     } else {
                         setConnecting(true);
-                        connectToDevice(selectPeer());
+//                        connectToDevice(selectPeer());
+                        selectPeer();
                     }
                 }
             }
         };
     }
 
-    private WifiP2pDevice selectPeer() {
+    private void selectPeer() {
         if (peerList.size() == 0) {
-            return null;
+            return;
         }
-        return peerList.get(0);
+//        return peerList.get(0);
+
+        CheckBox makeGo = (CheckBox) findViewById(R.id.is_go_check_box);
+
+        if (!isConnected && !makeGo.isChecked() && !promptedOnce) {
+            ArrayList<String> deviceNameList = new ArrayList<>();
+            for (WifiP2pDevice device : peerList) {
+                deviceNameList.add(device.deviceName);
+            }
+            ListSelectionAlert listSelectionAlert = new ListSelectionAlert();
+            Bundle args = new Bundle();
+            args.putStringArrayList("list", deviceNameList);
+            args.putString("title", "Select a device");
+            listSelectionAlert.setArguments(args);
+            listSelectionAlert.show(getSupportFragmentManager(), "list_select_alert");
+
+            promptedOnce = true;
+        }
+
     }
 
     private void connectToDevice(WifiP2pDevice device) {
@@ -375,6 +395,13 @@ public class WifiDirectActivity extends AppCompatActivity implements AdapterView
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
         selectedExperimentType = ExperimentType.values()[0];
+    }
+
+    @Override
+    public void onDialogPositiveClick(ListSelectionAlert selectionAlert) {
+        if (!isConnected) {
+            connectToDevice(peerList.get(selectionAlert.getSelection()));
+        }
     }
 }
 
