@@ -17,13 +17,16 @@ public class ThroughputExperiment extends PeriodicSender {
     @Override
     protected void setFileLogger () {
         fileLogger = (new FileLoggerFactory()).getFileLogger(LoggerType.LOGGER_1);
-        fileLogger.createLogFile("tp-"
+        String fileName = "tp-"
                 .concat(String.valueOf(messageSize).concat("-"))
                 .concat(String.valueOf(periodMS).concat("-"))
-                .concat(String.valueOf(durationMS).concat("-"))
-                .concat(String.valueOf(distanceM).concat("-"))
-                .concat(isSender ? "s" : "r")
-                .concat(".txt")
-        );
+                .concat(String.valueOf(distanceM).concat("-"));
+        if (isSender) {
+            fileName = fileName.concat("s.txt");
+        } else {
+            fileName = fileName.concat("r.txt");
+        }
+
+        fileLogger.createLogFile(fileName);
     }
 }
