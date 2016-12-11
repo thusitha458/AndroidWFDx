@@ -41,7 +41,7 @@
         android:labelFor="@string/period"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/_4282"
+        android:text="@string/_2852"
         android:id="@+id/message_size_text"
         android:layout_toEndOf="@id/connect_button"
         android:layout_below="@+id/connect_button"
